@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "resizehandle.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,6 +19,7 @@ public:
     ~MainWindow() override;
     void initLayerShell(){create();}
 
+
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -25,5 +27,14 @@ protected:
 private:
     Ui::MainWindow *ui;
     QPoint dragPosition;
+
+    ResizeHandle *m_topLeft;
+    ResizeHandle *m_topRight;
+    ResizeHandle *m_bottomLeft;
+    ResizeHandle *m_bottomRight;
+
+
+private slots:
+           void onHandleDragged(ResizeHandle::Corner corner, QPoint delta);
 };
 #endif // MAINWINDOW_H

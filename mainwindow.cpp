@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include <QLabel>
 #include <QMouseEvent>
 
@@ -14,7 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     setAttribute(Qt::WA_TranslucentBackground);
 
-    setStyleSheet("background-color: rgba(0,80,255,160);");
+    setStyleSheet("background-color: rgba(120,0,255,160);");
+
 
 
 }
@@ -32,3 +34,60 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+void MainWindow::onHandleDragged(ResizeHandle::Corner corner, QPoint delta){
+    QRect g = geometry();
+
+    switch(corner){
+    case ResizeHandle::TopLeft:
+        g.setTopLeft(g.topLeft() + delta);
+        break;
+    case ResizeHandle::TopRight:
+        g.setTopRight(g.topRight() + delta);
+        break;
+    case ResizeHandle::BottomLeft:
+        g.setBottomLeft(g.bottomLeft() + delta);
+        break;
+    case ResizeHandle::BottomRight:
+        g.setBottomRight(g.bottomRight() + delta);
+        break;
+    }
+
+    setGeometry(g);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

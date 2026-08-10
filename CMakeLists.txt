@@ -16,6 +16,12 @@ qt_add_executable(veil
     mainwindow.h
     mainwindow.ui
     controlpanel.h controlpanel.cpp
+    veil.glsl
+    veil.js
+    resizehandle.h resizehandle.cpp
+
+
+
 )
 
 target_link_libraries(veil
