@@ -1,93 +1,59 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
-#include <QLabel>
-#include <QMouseEvent>
+#include <QPainter>
+
+namespace {
+// Never let the veil shrink below the point where the four grips would overlap.
+constexpr int MinVeilSize = HandleLayer::HandleSize * 2 + 8;
+}
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QWidget{parent}
 {
-    ui->setupUi(this);
-
-
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowTransparentForInput);
-
     setAttribute(Qt::WA_TranslucentBackground);
-
-    setStyleSheet("background-color: rgba(120,0,255,160);");
-
-
-
 }
 
-void MainWindow::mousePressEvent(QMouseEvent *event){
-    if(event->button() == Qt::LeftButton)
-        dragPosition = event->globalPosition().toPoint() - frameGeometry().topLeft();
-};
-void MainWindow::mouseMoveEvent(QMouseEvent *event){
-    if(event->button() == Qt::LeftButton)
-        move(event->globalPosition().toPoint() - dragPosition);
-};
-
-MainWindow::~MainWindow()
+void MainWindow::setVeilRect(const QRect &rect)
 {
-    delete ui;
-}
-void MainWindow::onHandleDragged(ResizeHandle::Corner corner, QPoint delta){
-    QRect g = geometry();
+    if (m_rect == rect)
+        return;
 
-    switch(corner){
-    case ResizeHandle::TopLeft:
-        g.setTopLeft(g.topLeft() + delta);
+    m_rect = rect;
+    update();
+    emit veilRectChanged(m_rect);
+}
+
+void MainWindow::onCornerMoved(HandleLayer::Corner corner, QPoint pos)
+{
+    QRect g = m_rect;
+
+    switch (corner) {
+    case HandleLayer::TopLeft:
+        g.setLeft(qMin(pos.x(), g.right() - MinVeilSize));
+        g.setTop(qMin(pos.y(), g.bottom() - MinVeilSize));
         break;
-    case ResizeHandle::TopRight:
-        g.setTopRight(g.topRight() + delta);
+    case HandleLayer::TopRight:
+        g.setRight(qMax(pos.x(), g.left() + MinVeilSize));
+        g.setTop(qMin(pos.y(), g.bottom() - MinVeilSize));
         break;
-    case ResizeHandle::BottomLeft:
-        g.setBottomLeft(g.bottomLeft() + delta);
+    case HandleLayer::BottomLeft:
+        g.setLeft(qMin(pos.x(), g.right() - MinVeilSize));
+        g.setBottom(qMax(pos.y(), g.top() + MinVeilSize));
         break;
-    case ResizeHandle::BottomRight:
-        g.setBottomRight(g.bottomRight() + delta);
+    case HandleLayer::BottomRight:
+        g.setRight(qMax(pos.x(), g.left() + MinVeilSize));
+        g.setBottom(qMax(pos.y(), g.top() + MinVeilSize));
         break;
     }
 
-    setGeometry(g);
-
+    // Keep the whole thing on screen, otherwise a grip can be dragged out of
+    // reach and there is no way to get it back.
+    setVeilRect(g.intersected(rect()));
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void MainWindow::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.fillRect(m_rect, QColor(120, 0, 255, 80));
+}

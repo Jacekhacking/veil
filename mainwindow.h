@@ -1,40 +1,43 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include "resizehandle.h"
+#include <QRect>
+#include <QWidget>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
+#include "handlelayer.h"
 
-class MainWindow : public QMainWindow
+/*
+ * The tint itself: a full-screen layer-shell surface that is transparent for
+ * input end to end, so it never intercepts a click. Only the sub-rectangle
+ * veilRect() is painted; the rest of the surface stays fully transparent.
+ *
+ * Resizing therefore never touches the surface -- it just repaints a smaller
+ * or larger rectangle inside a surface that is always the size of the screen.
+ */
+class MainWindow : public QWidget
 {
     Q_OBJECT
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow() override;
-    void initLayerShell(){create();}
 
+    /// Realise the QWindow so LayerShellQt has something to attach to.
+    void initLayerShell() { create(); }
+
+    QRect veilRect() const { return m_rect; }
+
+public slots:
+    void setVeilRect(const QRect &rect);
+    void onCornerMoved(HandleLayer::Corner corner, QPoint pos);
+
+signals:
+    void veilRectChanged(const QRect &rect);
 
 protected:
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
-    Ui::MainWindow *ui;
-    QPoint dragPosition;
-
-    ResizeHandle *m_topLeft;
-    ResizeHandle *m_topRight;
-    ResizeHandle *m_bottomLeft;
-    ResizeHandle *m_bottomRight;
-
-
-private slots:
-           void onHandleDragged(ResizeHandle::Corner corner, QPoint delta);
+    QRect m_rect;
 };
+
 #endif // MAINWINDOW_H
