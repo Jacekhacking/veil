@@ -8,15 +8,8 @@
 /*
  * A full-screen layer-shell surface that exists only to carry the four corner
  * grips. Its input region is masked down to the grips themselves, so every
- * click that does not land on a red box goes straight through to whatever is
- * underneath -- including clicks inside the tinted area.
- *
- * Keeping the surface full-screen (instead of moving four small surfaces
- * around) means we never have to ask the compositor to reposition anything:
- * a layer-shell client cannot place itself freely, and dragging a surface via
- * anchor margins lags a round-trip behind the pointer. Here the surface is
- * nailed to the screen and only the painted contents move, so the grips track
- * the pointer exactly.
+ * click that does not land in a box goes straight through to whatever is
+ * underneath including clicks inside the tinted area.
  */
 class HandleLayer : public QWidget
 {
@@ -44,6 +37,7 @@ public slots:
 signals:
     /// Where the user wants this corner to sit, in surface (== screen) coordinates.
     void cornerMoved(HandleLayer::Corner corner, QPoint pos);
+    void windowMoved(QPoint delta);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -52,9 +46,11 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+
 private:
     QRect handleRect(Corner corner) const;
     QPoint cornerPoint(Corner corner) const;
+    QPoint m_dragStart;
     QRegion handleRegion() const;
     void updateInputRegion();
 
@@ -62,6 +58,7 @@ private:
     Corner m_active = TopLeft;
     QPoint m_grabOffset;
     bool m_dragging = false;
+    bool m_shiftHeld = false;
 };
 
 #endif // HANDLELAYER_H

@@ -52,6 +52,14 @@ void MainWindow::onCornerMoved(HandleLayer::Corner corner, QPoint pos)
     setVeilRect(g.intersected(rect()));
 }
 
+void MainWindow::onWindowMoved(QPoint delta){
+    QRect g = m_rect;
+
+    g.translate(delta);
+
+    setVeilRect(g.intersected(rect()));
+}
+
 void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
