@@ -104,7 +104,7 @@ void HandleLayer::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     for (Corner corner : AllCorners)
-        painter.fillRect(handleRect(corner), QColor(255, 255, 255));
+        painter.fillRect(handleRect(corner), QColor(120, 0, 255, 80));
 }
 
 void HandleLayer::mousePressEvent(QMouseEvent *event)
