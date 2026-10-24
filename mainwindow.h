@@ -29,6 +29,7 @@ public:
 public slots:
     void setVeilRect(const QRect &rect);
     void onCornerMoved(HandleLayer::Corner corner, QPoint pos);
+    void onWindowMoved(QPoint pos);
 
 signals:
     void veilRectChanged(const QRect &rect);

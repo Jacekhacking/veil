@@ -104,7 +104,7 @@ void HandleLayer::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     for (Corner corner : AllCorners)
-        painter.fillRect(handleRect(corner), QColor(255, 255, 255));
+        painter.fillRect(handleRect(corner), QColor(120, 0, 255, 80));
 }
 
 void HandleLayer::mousePressEvent(QMouseEvent *event)
@@ -119,6 +119,7 @@ void HandleLayer::mousePressEvent(QMouseEvent *event)
 
         m_active = corner;
         m_dragging = true;
+        m_dragStart = pos;
         // Remember where inside the grip we grabbed, so the corner does not
         // jump to the pointer on the first move.
         m_grabOffset = pos - cornerPoint(corner);
@@ -130,8 +131,19 @@ void HandleLayer::mouseMoveEvent(QMouseEvent *event)
 {
     const QPoint pos = event->position().toPoint();
 
+    m_shiftHeld = event->modifiers() & Qt::ShiftModifier;
+
     if (m_dragging) {
-        emit cornerMoved(m_active, pos - m_grabOffset);
+    // create delta difference for if shift is pressed to move the entire window
+        QPoint delta = pos - m_dragStart;
+        m_dragStart = pos;
+
+        if(m_shiftHeld){
+            emit windowMoved(delta);
+        }
+        else{
+            emit cornerMoved(m_active, pos - m_grabOffset);
+        }
         return;
     }
 

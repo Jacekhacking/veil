@@ -51,10 +51,20 @@ int main(int argc, char *argv[])
     if (!makeOverlaySurface(handles.windowHandle(), QStringLiteral("veil-handles")))
         return 1;
 
+
+    // if corners move update the veil ( veil will match corners automatically
     QObject::connect(&handles, &HandleLayer::cornerMoved,
                      &veil, &MainWindow::onCornerMoved);
+    // shift mod for moving window
+    QObject::connect(&handles, &HandleLayer::windowMoved,
+                     &veil, &MainWindow::onWindowMoved);
+
+
+    // Keeps handles inline with corners Always
     QObject::connect(&veil, &MainWindow::veilRectChanged,
                      &handles, &HandleLayer::setRect);
+
+
 
     // Both surfaces cover the screen, so surface-local coordinates are screen
     // coordinates and the two stay in lockstep without any translation.
